@@ -31,21 +31,13 @@
     --accent: 142 86% 28%;
     --accent-foreground: 210 20% 98%;
 
-<<<<<<< HEAD
     /* Premium gradients for dark crypto theme */
-    --gradient-primary: linear-gradient(135deg, hsl(142, 86%, 28%), hsl(142, 86%, 40%));
-    --gradient-card: linear-gradient(145deg, hsl(210, 11%, 13%), hsl(210, 11%, 16%));
-    --gradient-bg: radial-gradient(ellipse at top, hsl(210, 11%, 18%), hsl(210, 11%, 15%));
-    --gradient-hero: linear-gradient(135deg, hsl(142, 86%, 28%) 0%, hsl(210, 11%, 15%) 100%);
-=======
-  /* Premium gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(220 14% 98%));
-    --gradient-bg: radial-gradient(ellipse at top, hsl(280 100% 95%), hsl(220 14% 95%)), linear-gradient(135deg, hsl(var(--background)), hsl(220 14% 98%));
-    --gradient-hero: linear-gradient(135deg, hsl(280 89% 64% / 0.1), hsl(280 100% 75% / 0.05));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(210, 11%, 16%));
+    --gradient-bg: radial-gradient(ellipse at top, hsl(210, 11%, 18%), hsl(210, 11%, 15%));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--background)) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.4));
     --gradient-border: linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--primary-glow) / 0.1));
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
@@ -95,21 +87,16 @@
     --muted: 210 11% 21%;
     --muted-foreground: 210 13% 45%;
 
-<<<<<<< HEAD
     --accent: 142 86% 28%;
     --accent-foreground: 210 20% 98%;
-=======
-    --accent: 280 89% 26%;
-    --accent-foreground: 0 0% 100%;
 
     /* Premium gradients for dark mode */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(220 14% 15%));
-    --gradient-bg: radial-gradient(ellipse at top, hsl(280 89% 10%), hsl(220 14% 8%)), linear-gradient(135deg, hsl(var(--background)), hsl(220 14% 12%));
-    --gradient-hero: linear-gradient(135deg, hsl(280 89% 64% / 0.15), hsl(280 100% 75% / 0.08));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(210, 11%, 16%));
+    --gradient-bg: radial-gradient(ellipse at top, hsl(210, 11%, 18%), hsl(210, 11%, 15%));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--background)) 100%);
     --gradient-glass: linear-gradient(135deg, hsl(var(--card) / 0.8), hsl(var(--card) / 0.4));
-    --gradient-border: linear-gradient(135deg, hsl(var(--primary) / 0.4), hsl(var(--primary-glow) / 0.2));
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
+    --gradient-border: linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--primary-glow) / 0.1));
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
@@ -136,11 +123,7 @@
 
   html,
   body {
-    @apply h-full overflow-x-hidden antialiased;
-  }
-
-  body {
-    @apply text-foreground font-sans;
+    @apply h-full overflow-x-hidden antialiased text-foreground font-sans;
     background: var(--gradient-bg);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     perspective: 1000px;
@@ -170,7 +153,6 @@
 
   .premium-card {
     background: var(--gradient-card);
-<<<<<<< HEAD
     @apply backdrop-blur-sm border border-white/10 shadow-card-hover;
     transform-style: preserve-3d;
     transition: transform 0.3s ease-out;
@@ -178,10 +160,8 @@
 
   .premium-card:hover {
     transform: rotateX(5deg) rotateY(10deg) translateZ(20px);
-=======
-    @apply backdrop-blur-sm border-0 shadow-premium relative overflow-hidden;
   }
-  
+
   .premium-card::before {
     content: '';
     @apply absolute inset-0 rounded-lg;
@@ -190,18 +170,20 @@
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: xor;
     -webkit-mask-composite: xor;
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
   }
 
   /* Enhanced animations */
   .card-hover-effect {
-<<<<<<< HEAD
     @apply transition-all duration-500 ease-out hover:scale-[1.02] hover:shadow-card-hover;
     transform-style: preserve-3d;
   }
 
   .card-hover-effect:hover {
     transform: perspective(1000px) rotateX(5deg) rotateY(5deg) translateZ(10px) scale(1.02);
+  }
+
+  .floating-animation {
+    @apply animate-float;
   }
 
   .glow-effect {
@@ -228,22 +210,11 @@
   @keyframes glow-rotation {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-=======
-    @apply transition-all duration-700 ease-out hover:scale-[1.02] hover:shadow-premium hover:-translate-y-1;
-  }
-
-  .floating-animation {
-    @apply animate-float;
-  }
-
-  .glow-effect {
-    box-shadow: 0 0 30px hsl(var(--primary-glow) / 0.4);
   }
   
   .pulse-glow {
     @apply animate-pulse-gentle;
     box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
   }
   
   /* Custom scrollbar for webkit browsers */

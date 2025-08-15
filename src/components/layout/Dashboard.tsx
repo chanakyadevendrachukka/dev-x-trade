@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -279,11 +278,6 @@ export function Dashboard() {
       </div>
     </div>
   );
-=======
-import React from 'react';
-import { ModernDashboard } from '@/components/layout/ModernDashboard';
-
-export function Dashboard() {
-  return <ModernDashboard />;
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
 }
+
+export default Dashboard;

@@ -138,7 +138,6 @@ export default {
 				},
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
-<<<<<<< HEAD
 					'50%': { transform: 'translateY(-5px)' }
 				},
 				'glow-pulse': {
@@ -152,8 +151,6 @@ export default {
 				'rotate-slow': {
 					'0%': { transform: 'rotate(0deg)' },
 					'100%': { transform: 'rotate(360deg)' }
-=======
-					'50%': { transform: 'translateY(-10px)' }
 				},
 				'glow': {
 					'0%, 100%': { boxShadow: '0 0 5px hsl(var(--primary-glow))' },
@@ -162,7 +159,6 @@ export default {
 				'shimmer': {
 					'0%': { backgroundPosition: '-200% 0' },
 					'100%': { backgroundPosition: '200% 0' }
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
 				}
 			},
 			animation: {
@@ -170,24 +166,17 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'fade-out': 'fade-out 0.3s ease-out',
-<<<<<<< HEAD
 				'slide-up': 'slide-up 0.4s ease-out',
 				'slide-down': 'slide-down 0.4s ease-out',
-				'pulse-gentle': 'pulse-gentle 2s ease-in-out infinite',
-				'float': 'float 3s ease-in-out infinite',
-				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'rotate-slow': 'rotate-slow 20s linear infinite'
-=======
-				'slide-up': 'slide-up 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'slide-down': 'slide-down 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'slide-in-left': 'slide-in-left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'slide-in-right': 'slide-in-right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
 				'scale-in': 'scale-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-				'pulse-gentle': 'pulse-gentle 3s ease-in-out infinite',
-				'float': 'float 4s ease-in-out infinite',
+				'pulse-gentle': 'pulse-gentle 2s ease-in-out infinite',
+				'float': 'float 3s ease-in-out infinite',
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'rotate-slow': 'rotate-slow 20s linear infinite',
 				'glow': 'glow 2s ease-in-out infinite',
 				'shimmer': 'shimmer 2s linear infinite'
->>>>>>> bba034025d10fce5aae1d9345d32a84c2c98035b
 			},
 			backdropFilter: {
 				'none': 'none',
