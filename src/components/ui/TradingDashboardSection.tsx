@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, TrendingDown, BarChart3, Activity, DollarSign, Clock } from 'lucide-react';
 import { StatsCard } from '@/components/ui/StatsCard';
-import { useStockData, mockStocks, generatePriceHistory } from '@/utils/stocksApi';
+import { useStocks, mockStocks } from '@/utils/stocksApi';
 
 export function TradingDashboardSection() {
-  const stocks = useStockData(mockStocks);
+  const { stocks, loading, error } = useStocks();
   const [selectedTimeframe, setSelectedTimeframe] = useState('24h');
   
   const topGainers = stocks

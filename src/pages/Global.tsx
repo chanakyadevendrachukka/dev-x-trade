@@ -5,7 +5,7 @@ import { useMarketIndices, mockIndices } from '@/utils/stocksApi';
 import { Globe } from 'lucide-react';
 
 const Global = () => {
-  const indices = useMarketIndices(mockIndices);
+  const { indices, loading, error } = useMarketIndices();
   
   const regions = [
     { name: 'North America', markets: ['United States', 'Canada'] },

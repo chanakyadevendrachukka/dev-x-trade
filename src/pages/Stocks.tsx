@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { useStockData, mockStocks, generatePriceHistory } from '@/utils/stocksApi';
-import { StockCard } from '@/components/stocks/StockCard';
+import { useStocks, searchStocks, getStockBySymbol } from '@/utils/stocksApi';
+import { TradingStockCard } from '@/components/trading/TradingStockCard';
 import { StockChart } from '@/components/stocks/StockChart';
 import { StatsCard } from '@/components/ui/StatsCard';
 import { Button } from '@/components/ui/button';
@@ -11,10 +12,52 @@ import { Input } from '@/components/ui/input';
 import { Search, Filter, TrendingUp, TrendingDown, BarChart3, DollarSign } from 'lucide-react';
 
 const Stocks = () => {
-  const stocks = useStockData(mockStocks);
-  const [selectedStock, setSelectedStock] = useState(stocks[0]);
+  const [searchParams] = useSearchParams();
+  const { stocks, loading, error } = useStocks();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'symbol' | 'price' | 'change'>('symbol');
+  
+  // Handle URL search parameter
+  const urlSymbol = searchParams.get('symbol');
+  const [selectedStock, setSelectedStock] = useState(null);
+
+  // Update selected stock when URL parameter changes or stocks load
+  useEffect(() => {
+    if (urlSymbol && stocks.length > 0) {
+      const foundStock = getStockBySymbol(urlSymbol, stocks);
+      if (foundStock) {
+        setSelectedStock(foundStock);
+      }
+    } else if (stocks.length > 0 && !selectedStock) {
+      setSelectedStock(stocks[0]);
+    }
+  }, [urlSymbol, stocks, selectedStock]);
+
+  // Generate mock price history for charts
+  const generatePriceHistory = (days: number, currentPrice: number, volatility: number) => {
+    const history = [];
+    let price = currentPrice * 0.95; // Start slightly lower
+    
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      
+      // Add some random walk
+      const change = (Math.random() - 0.5) * volatility;
+      price += change;
+      
+      history.push({
+        date: date.toISOString().split('T')[0],
+        open: price,
+        high: price * (1 + Math.random() * 0.02),
+        low: price * (1 - Math.random() * 0.02),
+        close: price,
+        volume: Math.floor(Math.random() * 1000000) + 500000
+      });
+    }
+    
+    return history;
+  };
   
   const stocksWithHistory = stocks.map(stock => {
     return {
@@ -154,11 +197,10 @@ const Stocks = () => {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ delay: index * 0.05 }}
                   >
-                    <StockCard 
+                    <TradingStockCard 
                       stock={stock} 
-                      priceHistory={stock.priceHistory}
                       onClick={() => setSelectedStock(stock)}
-                      className={selectedStock.symbol === stock.symbol ? 
+                      className={selectedStock?.symbol === stock.symbol ? 
                         "ring-2 ring-primary shadow-lg shadow-primary/20" : 
                         ""
                       }
@@ -176,40 +218,42 @@ const Stocks = () => {
             transition={{ delay: 0.8 }}
             className="lg:col-span-2 space-y-6"
           >
-            <motion.div
-              key={selectedStock.symbol}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <StockChart 
-                symbol={selectedStock.symbol} 
-                name={selectedStock.name} 
-                currentPrice={selectedStock.price}
-                volatility={2.5}
-              />
-            </motion.div>
-            
-            {/* Detailed Stats */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4"
-            >
-              <motion.div
-                whileHover={{ scale: 1.02, y: -2 }}
-                className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl rounded-xl p-6 border border-border/50 hover:border-primary/20 transition-all duration-300"
-              >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <BarChart3 className="h-5 w-5 text-primary" />
-                  </div>
-                  <h3 className="font-medium text-sm text-muted-foreground">Market Cap</h3>
-                </div>
-                <p className="text-2xl font-bold">
-                  ${(selectedStock.marketCap / 1000000000).toFixed(2)}B
-                </p>
+            {selectedStock ? (
+              <>
+                <motion.div
+                  key={selectedStock.symbol}
+                  initial={{ scale: 0.95, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <StockChart 
+                    symbol={selectedStock.symbol} 
+                    name={selectedStock.name} 
+                    currentPrice={selectedStock.price}
+                    volatility={2.5}
+                  />
+                </motion.div>
+                
+                {/* Detailed Stats */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    className="bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-xl rounded-xl p-6 border border-border/50 hover:border-primary/20 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <BarChart3 className="h-5 w-5 text-primary" />
+                      </div>
+                      <h3 className="font-medium text-sm text-muted-foreground">Market Cap</h3>
+                    </div>
+                    <p className="text-2xl font-bold">
+                      ${(selectedStock.marketCap / 1000000000).toFixed(2)}B
+                    </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Market Capitalization
                 </p>
@@ -251,6 +295,12 @@ const Stocks = () => {
                 </p>
               </motion.div>
             </motion.div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-64">
+                <p className="text-muted-foreground">Loading stock data...</p>
+              </div>
+            )}
           </motion.div>
         </div>
       </motion.div>

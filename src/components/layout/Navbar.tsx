@@ -1,9 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { SearchBar } from '@/components/search/SearchBar';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Search, 
   Bell, 
@@ -14,13 +25,26 @@ import {
   BarChart3,
   TrendingUp,
   Globe,
-  Zap
+  Zap,
+  LogOut,
+  LogIn
 } from 'lucide-react';
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser, logout } = useAuth();
+
+  async function handleLogout() {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to logout:', error);
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,11 +56,14 @@ export function Navbar() {
   }, []);
 
   const navItems = [
-    { name: 'Markets', path: '/markets', icon: BarChart3 },
-    { name: 'Trading', path: '/dashboard', icon: TrendingUp },
-    { name: 'Analytics', path: '/analysis', icon: Globe },
-    { name: 'Portfolio', path: '/portfolio', icon: Zap },
+    { name: 'Markets', path: '/markets', icon: BarChart3, public: true },
+    { name: 'Trading', path: '/dashboard', icon: TrendingUp, public: false },
+    { name: 'Analytics', path: '/analysis', icon: Globe, public: false },
+    { name: 'Portfolio', path: '/portfolio', icon: Zap, public: false },
   ];
+
+  // Filter navigation items based on authentication status
+  const visibleNavItems = navItems.filter(item => item.public || currentUser);
 
   return (
     <>
@@ -60,8 +87,12 @@ export function Navbar() {
             >
               <Link to="/" className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-success rounded-xl flex items-center justify-center shadow-lg">
-                    <BarChart3 className="h-6 w-6 text-black font-bold" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-success rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                    <img 
+                      src="/favicon.ico" 
+                      alt="DevXTrade Logo" 
+                      className="w-8 h-8 object-contain"
+                    />
                   </div>
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-br from-primary to-success rounded-xl opacity-30"
@@ -84,7 +115,7 @@ export function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1">
-              {navItems.map((item, index) => {
+              {visibleNavItems.map((item, index) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
                 
@@ -129,71 +160,175 @@ export function Navbar() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="relative w-full">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search markets, currencies..."
-                  className="pl-12 pr-4 py-3 bg-card/30 backdrop-blur-sm border-border/50 rounded-xl focus:border-primary/50 focus:bg-card/50 transition-all duration-300 font-mono text-sm"
-                />
-              </div>
+              <SearchBar className="w-full" />
             </motion.div>
 
             {/* Right side buttons */}
-            <div className="flex items-center space-x-3">
-              {/* Notifications */}
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/50 transition-all duration-300"
-                >
-                  <Bell className="h-5 w-5" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {currentUser ? (
+                <>
+                  {/* Notifications - only show when logged in and on larger screens */}
                   <motion.div
-                    className="absolute -top-1 -right-1 w-3 h-3 bg-success rounded-full"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                </Button>
-              </motion.div>
-
-              {/* Settings */}
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link to="/settings">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/50 transition-all duration-300"
+                    className="hidden sm:block"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </Link>
-              </motion.div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/50 transition-all duration-300"
+                    >
+                      <Bell className="h-5 w-5" />
+                      <motion.div
+                        className="absolute -top-1 -right-1 w-3 h-3 bg-success rounded-full"
+                        animate={{
+                          scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    </Button>
+                  </motion.div>
 
-              {/* Profile */}
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-xl bg-gradient-to-br from-primary/20 to-success/20 backdrop-blur-sm border border-primary/30 hover:from-primary/30 hover:to-success/30 transition-all duration-300"
-                >
-                  <User className="h-5 w-5 text-primary" />
-                </Button>
-              </motion.div>
+                  {/* Settings - only show when logged in and on larger screens */}
+                  <motion.div
+                    className="hidden sm:block"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link to="/settings">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/50 transition-all duration-300"
+                      >
+                        <Settings className="h-5 w-5" />
+                      </Button>
+                    </Link>
+                  </motion.div>
+
+                  {/* Profile Dropdown - only show when logged in */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="relative h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-success/20 backdrop-blur-sm border border-primary/30 hover:from-primary/30 hover:to-success/30 transition-all duration-300"
+                        >
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={currentUser.photoURL || undefined} />
+                            <AvatarFallback className="bg-gradient-to-br from-primary to-success text-white text-sm">
+                              {currentUser.displayName 
+                                ? currentUser.displayName.split(' ').map(n => n[0]).join('').toUpperCase()
+                                : currentUser.email?.[0]?.toUpperCase() || 'U'
+                              }
+                            </AvatarFallback>
+                          </Avatar>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-64 max-w-xs" align="end" forceMount>
+                        <DropdownMenuLabel className="font-normal">
+                          <div className="flex flex-col space-y-1 min-w-0">
+                            <p className="text-sm font-medium leading-none truncate">
+                              {currentUser.displayName || 'DevX Trader'}
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground truncate">
+                              {currentUser.email}
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/profile" className="cursor-pointer">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/settings" className="cursor-pointer">
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>Settings</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/portfolio" className="cursor-pointer">
+                            <TrendingUp className="mr-2 h-4 w-4" />
+                            <span>Portfolio</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="cursor-pointer text-red-600 focus:text-red-600"
+                          onSelect={(event) => {
+                            event.preventDefault();
+                            handleLogout();
+                          }}
+                        >
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Log out</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </motion.div>
+
+                  {/* Logout */}
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleLogout}
+                      className="rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-destructive/30 hover:bg-destructive/10 transition-all duration-300"
+                      title="Logout"
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </Button>
+                  </motion.div>
+                </>
+              ) : (
+                <>
+                  {/* Login/Signup buttons when not logged in */}
+                  <motion.div
+                    className="hidden sm:block"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link to="/login">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-xl bg-card/30 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:bg-card/50 transition-all duration-300"
+                      >
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login
+                      </Button>
+                    </Link>
+                  </motion.div>
+
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Link to="/signup">
+                      <Button
+                        size="sm"
+                        className="rounded-xl bg-gradient-to-br from-primary to-success hover:from-primary/90 hover:to-success/90 transition-all duration-300"
+                      >
+                        <span className="hidden sm:inline">Sign Up</span>
+                        <span className="sm:hidden">Join</span>
+                      </Button>
+                    </Link>
+                  </motion.div>
+                </>
+              )}
 
               {/* Mobile menu button */}
               <motion.div
@@ -242,17 +377,15 @@ export function Navbar() {
             >
               <div className="p-6 space-y-4">
                 {/* Mobile Search */}
-                <div className="relative md:hidden">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search markets..."
-                    className="pl-12 pr-4 py-3 bg-background/50 border-border/50 rounded-xl font-mono text-sm"
-                  />
-                </div>
+                <SearchBar 
+                  className="md:hidden" 
+                  placeholder="Search markets..."
+                  onResultClick={() => setIsMobileMenuOpen(false)}
+                />
                 
                 {/* Navigation Items */}
                 <div className="space-y-2">
-                  {navItems.map((item, index) => {
+                  {visibleNavItems.map((item, index) => {
                     const isActive = location.pathname === item.path;
                     const Icon = item.icon;
                     
@@ -284,6 +417,48 @@ export function Navbar() {
                       </motion.div>
                     );
                   })}
+                  
+                  {/* Mobile auth buttons */}
+                  {!currentUser && (
+                    <div className="space-y-2 pt-4 border-t border-border/30">
+                      <Link
+                        to="/login"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start px-4 py-3 rounded-xl text-base font-medium transition-all duration-300"
+                        >
+                          <LogIn className="h-5 w-5 mr-3" />
+                          Login
+                        </Button>
+                      </Link>
+                      <Link
+                        to="/signup"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Button
+                          className="w-full justify-start px-4 py-3 rounded-xl text-base font-medium bg-gradient-to-br from-primary to-success"
+                        >
+                          Sign Up
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                  
+                  {/* Mobile logout button */}
+                  {currentUser && (
+                    <div className="pt-4 border-t border-border/30">
+                      <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        className="w-full justify-start px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10"
+                      >
+                        <LogOut className="h-5 w-5 mr-3" />
+                        Logout
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>

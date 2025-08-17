@@ -1,10 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  useStockData, useMarketIndices, useCurrencyPairs, 
-  mockStocks, mockIndices, mockCurrencies, mockNews,
-  generatePriceHistory 
+  useStocks, useMarketIndices, useCurrencies, 
+  mockStocks, mockIndices, mockCurrencies, mockNews
 } from '@/utils/stocksApi';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -19,15 +18,34 @@ import { BarChart3, TrendingDown, TrendingUp, Wallet2 } from 'lucide-react';
 
 export function Dashboard() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedStock, setSelectedStock] = useState(mockStocks[0]);
-  
+  const [selectedStock, setSelectedStock] = useState(null);
+
   // Use our hooks to get real-time mock data
-  const stocks = useStockData(mockStocks);
-  const indices = useMarketIndices(mockIndices);
-  const currencies = useCurrencyPairs(mockCurrencies);
+  const { stocks, loading, error } = useStocks();
+  const { indices, loading: indicesLoading, error: indicesError } = useMarketIndices();
+  const { currencies } = useCurrencies();
+
+  // Set default selected stock when stocks are loaded
+  React.useEffect(() => {
+    if (stocks.length > 0 && !selectedStock) {
+      setSelectedStock(stocks[0]);
+    }
+  }, [stocks, selectedStock]);  // Simple price history generator
+  const generatePriceHistory = (days: number, basePrice: number, volatility: number = 2): number[] => {
+    const history = [];
+    let currentPrice = basePrice;
+    
+    for (let i = 0; i < days; i++) {
+      const change = (Math.random() - 0.5) * 2 * volatility;
+      currentPrice = Math.max(0.01, currentPrice + change);
+      history.push(currentPrice);
+    }
+    
+    return history;
+  };
   
   // Generate chart data for the selected stock
-  const selectedStockHistory = generatePriceHistory(30, selectedStock.price, 2);
+  const selectedStockHistory = selectedStock ? generatePriceHistory(30, selectedStock.price, 2) : [];
   
   // Generate chart data for stock cards
   const stocksWithHistory = stocks.map(stock => {
@@ -41,8 +59,8 @@ export function Dashboard() {
   const gainers = stocks.filter(stock => stock.changePercent > 0);
   const losers = stocks.filter(stock => stock.changePercent < 0);
   
-  const topGainer = [...stocks].sort((a, b) => b.changePercent - a.changePercent)[0];
-  const topLoser = [...stocks].sort((a, b) => a.changePercent - b.changePercent)[0];
+  const topGainer = stocks.length > 0 ? [...stocks].sort((a, b) => b.changePercent - a.changePercent)[0] : null;
+  const topLoser = stocks.length > 0 ? [...stocks].sort((a, b) => a.changePercent - b.changePercent)[0] : null;
   
   const totalMarketCap = stocks.reduce((sum, stock) => sum + stock.marketCap, 0);
   const totalVolume = stocks.reduce((sum, stock) => sum + stock.volume, 0);
@@ -139,9 +157,9 @@ export function Dashboard() {
               }}>
                 <StatsCard 
                   title="Top Gainer" 
-                  value={topGainer.symbol}
-                  trend={topGainer.changePercent}
-                  trendLabel={topGainer.name}
+                  value={topGainer ? topGainer.symbol : "--"}
+                  trend={topGainer ? topGainer.changePercent : 0}
+                  trendLabel={topGainer ? topGainer.name : "No data"}
                   icon={<TrendingUp />}
                   className="bg-success/5 border-success/20"
                 />
@@ -152,9 +170,9 @@ export function Dashboard() {
               }}>
                 <StatsCard 
                   title="Top Loser" 
-                  value={topLoser.symbol}
-                  trend={topLoser.changePercent}
-                  trendLabel={topLoser.name}
+                  value={topLoser ? topLoser.symbol : "--"}
+                  trend={topLoser ? topLoser.changePercent : 0}
+                  trendLabel={topLoser ? topLoser.name : "No data"}
                   icon={<TrendingDown />}
                   className="bg-danger/5 border-danger/20"
                 />
@@ -209,7 +227,7 @@ export function Dashboard() {
                           stock={stock} 
                           priceHistory={stock.priceHistory}
                           onClick={() => setSelectedStock(stock)}
-                          className={selectedStock.symbol === stock.symbol ? 
+                          className={selectedStock?.symbol === stock.symbol ? 
                             "ring-2 ring-primary shadow-lg shadow-primary/20" : 
                             "hover:shadow-lg transition-shadow duration-300"
                           }
@@ -233,12 +251,18 @@ export function Dashboard() {
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 1, duration: 0.5 }}
                 >
-                  <StockChart 
-                    symbol={selectedStock.symbol} 
-                    name={selectedStock.name} 
-                    currentPrice={selectedStock.price}
-                    volatility={2.5}
-                  />
+                  {selectedStock ? (
+                    <StockChart 
+                      symbol={selectedStock.symbol} 
+                      name={selectedStock.name} 
+                      currentPrice={selectedStock.price}
+                      volatility={2.5}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-64 bg-card rounded-lg">
+                      <p className="text-muted-foreground">Loading chart data...</p>
+                    </div>
+                  )}
                 </motion.div>
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}

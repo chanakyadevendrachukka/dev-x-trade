@@ -5,8 +5,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { PrivateRoute } from "@/components/auth/PrivateRoute";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 import NotFound from "./pages/NotFound";
 import Stocks from "./pages/Stocks";
 import Markets from "./pages/Markets";
@@ -16,6 +23,7 @@ import Portfolio from "./pages/Portfolio";
 import Performance from "./pages/Performance";
 import Analysis from "./pages/Analysis";
 import Settings from "./pages/Settings";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -30,22 +38,65 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/stocks" element={<Stocks />} />
-            <Route path="/markets" element={<Markets />} />
-            <Route path="/currencies" element={<Currencies />} />
-            <Route path="/global" element={<Global />} />
-            <Route path="/portfolio" element={<Portfolio />} />
-            <Route path="/performance" element={<Performance />} />
-            <Route path="/analysis" element={<Analysis />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/markets" element={<Markets />} />
+              <Route path="/global" element={<Global />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={
+                <PrivateRoute>
+                  <Dashboard />
+                </PrivateRoute>
+              } />
+              <Route path="/stocks" element={
+                <PrivateRoute>
+                  <Stocks />
+                </PrivateRoute>
+              } />
+              <Route path="/currencies" element={
+                <PrivateRoute>
+                  <Currencies />
+                </PrivateRoute>
+              } />
+              <Route path="/portfolio" element={
+                <PrivateRoute>
+                  <Portfolio />
+                </PrivateRoute>
+              } />
+              <Route path="/performance" element={
+                <PrivateRoute>
+                  <Performance />
+                </PrivateRoute>
+              } />
+              <Route path="/analysis" element={
+                <PrivateRoute>
+                  <Analysis />
+                </PrivateRoute>
+              } />
+              <Route path="/settings" element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              } />
+              <Route path="/profile" element={
+                <PrivateRoute>
+                  <Profile />
+                </PrivateRoute>
+              } />
+              
+              {/* Catch-all route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

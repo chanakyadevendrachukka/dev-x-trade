@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  useStockData, useMarketIndices, useCurrencyPairs, 
-  mockStocks, mockIndices, mockCurrencies, mockNews,
-  generatePriceHistory 
+  useStocks, useMarketIndices, useCurrencies, 
+  mockStocks, mockIndices, mockCurrencies, mockNews
 } from '@/utils/stocksApi';
 import { Navbar } from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -16,15 +15,36 @@ import { BarChart3, TrendingDown, TrendingUp, Wallet2, Activity, Globe } from 'l
 
 export function ModernDashboard() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedStock, setSelectedStock] = useState(mockStocks[0]);
+  const [selectedStock, setSelectedStock] = useState(null);
   
   // Use our hooks to get real-time mock data
-  const stocks = useStockData(mockStocks);
-  const indices = useMarketIndices(mockIndices);
-  const currencies = useCurrencyPairs(mockCurrencies);
+  const { stocks, loading, error } = useStocks();
+  const { indices, loading: indicesLoading, error: indicesError } = useMarketIndices();
+  const { currencies } = useCurrencies();
+
+  // Set default selected stock when stocks are loaded
+  useEffect(() => {
+    if (stocks.length > 0 && !selectedStock) {
+      setSelectedStock(stocks[0]);
+    }
+  }, [stocks, selectedStock]);
+
+  // Simple price history generator
+  const generatePriceHistory = (days: number, basePrice: number, volatility: number = 2): number[] => {
+    const history = [];
+    let currentPrice = basePrice;
+    
+    for (let i = 0; i < days; i++) {
+      const change = (Math.random() - 0.5) * 2 * volatility;
+      currentPrice = Math.max(0.01, currentPrice + change);
+      history.push(currentPrice);
+    }
+    
+    return history;
+  };
   
   // Generate chart data for the selected stock
-  const selectedStockHistory = generatePriceHistory(30, selectedStock.price, 2);
+  const selectedStockHistory = selectedStock ? generatePriceHistory(30, selectedStock.price, 2) : [];
   
   // Generate chart data for stock cards
   const stocksWithHistory = stocks.map(stock => {
@@ -38,8 +58,8 @@ export function ModernDashboard() {
   const gainers = stocks.filter(stock => stock.changePercent > 0);
   const losers = stocks.filter(stock => stock.changePercent < 0);
   
-  const topGainer = [...stocks].sort((a, b) => b.changePercent - a.changePercent)[0];
-  const topLoser = [...stocks].sort((a, b) => a.changePercent - b.changePercent)[0];
+  const topGainer = stocks.length > 0 ? [...stocks].sort((a, b) => b.changePercent - a.changePercent)[0] : null;
+  const topLoser = stocks.length > 0 ? [...stocks].sort((a, b) => a.changePercent - b.changePercent)[0] : null;
   
   const totalMarketCap = stocks.reduce((sum, stock) => sum + stock.marketCap, 0);
   const totalVolume = stocks.reduce((sum, stock) => sum + stock.volume, 0);
@@ -105,9 +125,9 @@ export function ModernDashboard() {
               />
               <ModernStatsCard 
                 title="Top Performer" 
-                value={topGainer.symbol}
-                trend={topGainer.changePercent}
-                trendLabel={topGainer.name}
+                value={topGainer ? topGainer.symbol : "--"}
+                trend={topGainer ? topGainer.changePercent : 0}
+                trendLabel={topGainer ? topGainer.name : "No data"}
                 icon={<TrendingUp />}
                 variant="success"
                 className="animate-slide-up"
@@ -115,9 +135,9 @@ export function ModernDashboard() {
               />
               <ModernStatsCard 
                 title="Market Mover" 
-                value={topLoser.symbol}
-                trend={topLoser.changePercent}
-                trendLabel={topLoser.name}
+                value={topLoser ? topLoser.symbol : "--"}
+                trend={topLoser ? topLoser.changePercent : 0}
+                trendLabel={topLoser ? topLoser.name : "No data"}
                 icon={<TrendingDown />}
                 variant="danger"
                 className="animate-slide-up"
@@ -143,7 +163,7 @@ export function ModernDashboard() {
                         stock={stock} 
                         priceHistory={stock.priceHistory}
                         onClick={() => setSelectedStock(stock)}
-                        isSelected={selectedStock.symbol === stock.symbol}
+                        isSelected={selectedStock?.symbol === stock.symbol}
                         className="animate-slide-up"
                         style={{ animationDelay: `${600 + index * 100}ms` }}
                       />
@@ -155,12 +175,18 @@ export function ModernDashboard() {
               {/* Main Chart Area */}
               <div className="xl:col-span-6 space-y-6 animate-slide-up" style={{ animationDelay: '600ms' }}>
                 <div className="glass-card p-6 rounded-2xl">
-                  <StockChart 
-                    symbol={selectedStock.symbol} 
-                    name={selectedStock.name} 
-                    currentPrice={selectedStock.price}
-                    volatility={2.5}
-                  />
+                  {selectedStock ? (
+                    <StockChart 
+                      symbol={selectedStock.symbol} 
+                      name={selectedStock.name} 
+                      currentPrice={selectedStock.price}
+                      volatility={2.5}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-64 bg-card rounded-lg">
+                      <p className="text-muted-foreground">Loading chart data...</p>
+                    </div>
+                  )}
                 </div>
                 <div className="glass-card p-6 rounded-2xl">
                   <NewsCard news={mockNews} />
