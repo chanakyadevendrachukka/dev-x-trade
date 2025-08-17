@@ -270,78 +270,27 @@ class YahooFinanceService {
       timestamp: Date.now()
     };
   }
-  // Popular stock symbols
-  private readonly popularStocks = [
-    'AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'AMD', 'INTC'
-  ];
-
-  // Popular crypto symbols
-  private readonly popularCrypto = [
-    'BTC-USD', 'ETH-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'SOL-USD', 'DOT-USD', 'DOGE-USD'
-  ];
-
-  // Popular indices
-  private readonly popularIndices = [
-    '^GSPC', '^DJI', '^IXIC', '^RUT', '^VIX'
-  ];
-
-  // Base prices for realistic mock data
-  private basePrices: Record<string, number> = {
-    'AAPL': 187.32,
-    'GOOGL': 157.95,
-    'MSFT': 402.65,
-    'AMZN': 145.86,
-    'TSLA': 248.50,
-    'META': 312.18,
-    'NVDA': 875.25,
-    'NFLX': 425.60,
-    'AMD': 142.30,
-    'INTC': 45.75,
-    '^GSPC': 5123.41,
-    '^DJI': 38239.98,
-    '^IXIC': 16315.19,
-    '^RUT': 2089.45,
-    '^VIX': 18.25,
-    'BTC-USD': 65841.25,
-    'ETH-USD': 3487.92,
-    'BNB-USD': 521.35,
-    'XRP-USD': 0.6123,
-    'ADA-USD': 0.4523,
-    'SOL-USD': 142.85,
-    'DOT-USD': 7.89,
-    'DOGE-USD': 0.0823
-  };
-
-  // Get single stock quote
-  async getStockQuote(symbol: string): Promise<StockQuote> {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
-      
-      const basePrice = this.basePrices[symbol] || 100;
-      const price = this.simulatePrice(basePrice);
-      const change = price - basePrice;
-      const changePercent = (change / basePrice) * 100;
-      
-      return {
-        symbol: symbol,
-        price: parseFloat(price.toFixed(2)),
-        change: parseFloat(change.toFixed(2)),
-        changePercent: parseFloat(changePercent.toFixed(2)),
-        volume: Math.floor(Math.random() * 50000000) + 1000000,
-        open: parseFloat((price * (0.98 + Math.random() * 0.04)).toFixed(2)),
-        high: parseFloat((price * (1.01 + Math.random() * 0.02)).toFixed(2)),
-        low: parseFloat((price * (0.97 + Math.random() * 0.02)).toFixed(2)),
-        previousClose: basePrice,
-        marketCap: Math.floor(Math.random() * 2000000000000) + 100000000000,
-        peRatio: parseFloat((15 + Math.random() * 20).toFixed(2)),
-        dividendYield: parseFloat((Math.random() * 3).toFixed(2)),
-        timestamp: Date.now()
-      };
-    } catch (error) {
-      console.error(`Error fetching quote for ${symbol}:`, error);
-      throw error;
-    }
+  private getMockStockQuote(symbol: string): StockQuote {
+    const basePrice = this.basePrices[symbol] || 100;
+    const price = this.simulatePrice(basePrice);
+    const change = price - basePrice;
+    const changePercent = (change / basePrice) * 100;
+    
+    return {
+      symbol: symbol,
+      price: parseFloat(price.toFixed(2)),
+      change: parseFloat(change.toFixed(2)),
+      changePercent: parseFloat(changePercent.toFixed(2)),
+      volume: Math.floor(Math.random() * 50000000) + 1000000,
+      open: parseFloat((price * (0.98 + Math.random() * 0.04)).toFixed(2)),
+      high: parseFloat((price * (1.01 + Math.random() * 0.02)).toFixed(2)),
+      low: parseFloat((price * (0.97 + Math.random() * 0.02)).toFixed(2)),
+      previousClose: basePrice,
+      marketCap: Math.floor(Math.random() * 2000000000000) + 100000000000,
+      peRatio: parseFloat((15 + Math.random() * 20).toFixed(2)),
+      dividendYield: parseFloat((Math.random() * 3).toFixed(2)),
+      timestamp: Date.now()
+    };
   }
 
   // Get multiple stock quotes
