@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the intended destination from the router state
+  const from = location.state?.from?.pathname || '/dashboard';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +28,8 @@ export default function Login() {
       setError('');
       setLoading(true);
       await login(email, password);
-      navigate('/dashboard');
+      // Navigate to the intended destination or dashboard
+      navigate(from, { replace: true });
     } catch (error: any) {
       setError('Failed to log in: ' + error.message);
     }
@@ -36,7 +41,8 @@ export default function Login() {
       setError('');
       setLoading(true);
       await loginWithGoogle();
-      navigate('/dashboard');
+      // Navigate to the intended destination or dashboard
+      navigate(from, { replace: true });
     } catch (error: any) {
       setError('Failed to log in with Google: ' + error.message);
     }

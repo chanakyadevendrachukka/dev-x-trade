@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
+import { PublicRoute } from "@/components/auth/PublicRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
@@ -43,12 +44,22 @@ const App = () => {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/markets" element={<Markets />} />
               <Route path="/global" element={<Global />} />
+              
+              {/* Auth Routes - restricted when logged in */}
+              <Route path="/login" element={
+                <PublicRoute restricted={true}>
+                  <Login />
+                </PublicRoute>
+              } />
+              <Route path="/signup" element={
+                <PublicRoute restricted={true}>
+                  <Signup />
+                </PublicRoute>
+              } />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={

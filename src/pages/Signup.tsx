@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,10 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const { signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the intended destination from the router state
+  const from = location.state?.from?.pathname || '/dashboard';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,8 +43,9 @@ export default function Signup() {
       setLoading(true);
       console.log('Starting signup process...');
       await signup(formData.email, formData.password, formData.name);
-      console.log('Signup completed, navigating to dashboard...');
-      navigate('/dashboard');
+      console.log('Signup completed, navigating to destination...');
+      // Navigate to the intended destination or dashboard
+      navigate(from, { replace: true });
     } catch (error: any) {
       console.error('Signup error details:', error);
       let errorMessage = 'Failed to create account';
@@ -76,7 +81,8 @@ export default function Signup() {
       setError('');
       setLoading(true);
       await loginWithGoogle();
-      navigate('/dashboard');
+      // Navigate to the intended destination or dashboard
+      navigate(from, { replace: true });
     } catch (error: any) {
       setError('Failed to sign up with Google: ' + error.message);
     }

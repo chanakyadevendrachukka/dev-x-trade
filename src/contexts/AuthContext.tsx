@@ -69,6 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   function loginWithGoogle() {
     console.log('Attempting Google login');
     const provider = new GoogleAuthProvider();
+    // Add additional scopes if needed
+    provider.addScope('profile');
+    provider.addScope('email');
+    
     return signInWithPopup(auth, provider).then((result) => {
       console.log('Google login successful:', result.user.uid);
       return result;
@@ -106,7 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 }

@@ -73,7 +73,7 @@ export function HeroSection() {
           >
             <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold leading-none tracking-tight mb-4">
               <span className="block text-foreground font-display">Smart</span>
-              <span className="block text-foreground font-display">Trading</span>
+              <span className="block text-foreground font-display">Trading,</span>
               <motion.span 
                 className="block bg-gradient-to-r from-primary via-primary to-success bg-clip-text text-transparent font-display"
                 animate={{
@@ -86,7 +86,7 @@ export function HeroSection() {
                 }}
                 style={{ backgroundSize: "200% 200%" }}
               >
-                Decisions
+                Simplified
               </motion.span>
             </h1>
           </motion.div>
